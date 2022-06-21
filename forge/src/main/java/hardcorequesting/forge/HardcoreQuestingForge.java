@@ -9,6 +9,7 @@ import com.mojang.math.Matrix4f;
 import hardcorequesting.common.HardcoreQuestingCore;
 import hardcorequesting.common.config.HQMConfig;
 import hardcorequesting.common.items.ModItems;
+import hardcorequesting.common.items.crafting.BookCatalystRecipeSerializer;
 import hardcorequesting.common.platform.AbstractPlatform;
 import hardcorequesting.common.platform.FluidStack;
 import hardcorequesting.common.platform.NetworkManager;
@@ -51,6 +52,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.ForgeHooksClient;
+import net.minecraftforge.client.RenderProperties;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.util.FakePlayer;
@@ -65,7 +67,7 @@ import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.BlockEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fluids.FluidAttributes;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fml.ModList;
@@ -228,7 +230,7 @@ public class HardcoreQuestingForge implements AbstractPlatform {
     public void registerOnHudRender(BiConsumer<PoseStack, Float> biConsumer) {
         MinecraftForge.EVENT_BUS.<RenderGameOverlayEvent.Post>addListener(event -> {
             if (event.getType() == RenderGameOverlayEvent.ElementType.ALL)
-                biConsumer.accept(event.getMatrixStack(), event.getPartialTicks());
+                biConsumer.accept(event.getPoseStack(), event.getPartialTick());
         });
     }
     
@@ -383,11 +385,11 @@ public class HardcoreQuestingForge implements AbstractPlatform {
     @Override
     public void renderFluidStack(FluidStack fluidStack, PoseStack matrices, int x1, int y1, int x2, int y2) {
         ForgeFluidStack stack = (ForgeFluidStack) fluidStack;
-        FluidAttributes attributes = stack.getFluid().getAttributes();
-        ResourceLocation texture = attributes.getStillTexture(stack._stack);
+        var properties = RenderProperties.get(stack.getFluid());
+        ResourceLocation texture = properties.getStillTexture(stack._stack);
         Material blockMaterial = ForgeHooksClient.getBlockMaterial(texture);
         TextureAtlasSprite sprite = blockMaterial.sprite();
-        int color = attributes.getColor(Minecraft.getInstance().level, BlockPos.ZERO);
+        int color = properties.getColorTint(stack._stack);
         int a = 255;
         int r = (color >> 16 & 255);
         int g = (color >> 8 & 255);
@@ -404,7 +406,7 @@ public class HardcoreQuestingForge implements AbstractPlatform {
     
     @Override
     public Fraction getBucketAmount() {
-        return Fraction.ofWhole(FluidAttributes.BUCKET_VOLUME);
+        return Fraction.ofWhole(FluidType.BUCKET_VOLUME);
     }
     
     @Override

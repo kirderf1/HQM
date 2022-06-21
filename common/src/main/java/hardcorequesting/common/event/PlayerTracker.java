@@ -8,7 +8,6 @@ import hardcorequesting.common.quests.QuestLine;
 import hardcorequesting.common.quests.QuestingDataManager;
 import hardcorequesting.common.util.HQMUtil;
 import hardcorequesting.common.util.Translator;
-import net.minecraft.Util;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +37,7 @@ public class PlayerTracker {
         if (questingData.isHardcoreActive())
             sendLoginMessage(player);
         else if (HQMConfig.getInstance().Message.NO_HARDCORE_MESSAGE)
-            player.sendMessage(Translator.translatable("hqm.message.noHardcore"), Util.NIL_UUID);
+            player.sendSystemMessage(Translator.translatable("hqm.message.noHardcore"));
         
         if (!HQMUtil.isSinglePlayerOnly()) {
             Quest.setEditMode(false);
@@ -59,8 +58,8 @@ public class PlayerTracker {
     
     
     private void sendLoginMessage(Player player) {
-        player.sendMessage(Translator.translatable("hqm.message.hardcore").append(" ")
+        player.sendSystemMessage(Translator.translatable("hqm.message.hardcore").append(" ")
                 .append(Translator.translatable("hqm.message.livesLeft",
-                        Translator.lives(getRemainingLives(player)))), Util.NIL_UUID);
+                        Translator.lives(getRemainingLives(player)))));
     }
 }
